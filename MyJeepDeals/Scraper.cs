@@ -60,7 +60,7 @@ namespace MyJeepDeals
             return !string.IsNullOrWhiteSpace(result) ? result : fallback;
         }
 
-        public double? ScrapeDouble(string pageContents, string xPath, string regex = "")
+        public double? ScrapeDouble(string pageContents, string xPath, string regex = "", string attribute = "")
         {
             double? result = null;
 
@@ -78,7 +78,7 @@ namespace MyJeepDeals
             {
                 if (!string.IsNullOrWhiteSpace(regex))
                 {
-                    var match = Regex.Match(node.InnerText, regex);
+                    var match = Regex.Match(!string.IsNullOrWhiteSpace(attribute) ? node.Attributes.FirstOrDefault(x => x.Name == attribute).Value : node.InnerText, regex);
 
                     foreach (var m in match.Groups.Skip(1))
                     {
@@ -87,9 +87,9 @@ namespace MyJeepDeals
                 }
                 else
                 {
-                    if(!string.IsNullOrWhiteSpace(node.InnerText))
+                    if(!string.IsNullOrWhiteSpace(!string.IsNullOrWhiteSpace(attribute) ? node.Attributes.FirstOrDefault(x => x.Name == attribute).Value : node.InnerText))
                     {
-                        result = Convert.ToDouble(GetNumbers(node.InnerText));
+                        result = Convert.ToDouble(GetNumbers(!string.IsNullOrWhiteSpace(attribute) ? node.Attributes.FirstOrDefault(x => x.Name == attribute).Value : node.InnerText));
                     }
                 }
             }
@@ -129,12 +129,11 @@ namespace MyJeepDeals
             {
                 Url = url,
                 Title = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Title").GetCustomAttribute(typeof(Selector))).XPath),
-                Description = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Description").GetCustomAttribute(typeof(Selector))).XPath),
-                Price = ScrapeDouble(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Price").GetCustomAttribute(typeof(Selector))).XPath, ((Selector)properties.FirstOrDefault(x => x.Name == "Price").GetCustomAttribute(typeof(Selector))).Regex),
-                Availability = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Availability").GetCustomAttribute(typeof(Selector))).XPath, "Out of Stock"),
+                Description = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Description").GetCustomAttribute(typeof(Selector))).XPath, "", "", ExtractType.Text, ((Selector)properties.FirstOrDefault(x => x.Name == "Description").GetCustomAttribute(typeof(Selector))).Attribute),
+                Price = ScrapeDouble(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Price").GetCustomAttribute(typeof(Selector))).XPath, ((Selector)properties.FirstOrDefault(x => x.Name == "Price").GetCustomAttribute(typeof(Selector))).Regex, ((Selector)properties.FirstOrDefault(x => x.Name == "Price").GetCustomAttribute(typeof(Selector))).Attribute),
+                Availability = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Availability").GetCustomAttribute(typeof(Selector))).XPath, "Out of Stock", "", ExtractType.Text, ((Selector)properties.FirstOrDefault(x => x.Name == "Availability").GetCustomAttribute(typeof(Selector))).Attribute),
                 Specs = ScrapeList(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Specs").GetCustomAttribute(typeof(Selector))).XPath),
-                Html = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Html").GetCustomAttribute(typeof(Selector))).XPath, "", ((Selector)properties.FirstOrDefault(x => x.Name == "Html").GetCustomAttribute(typeof(Selector))).Regex, ExtractType.Html),
-                PrimaryImage = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "PrimaryImage").GetCustomAttribute(typeof(Selector))).XPath, "", ((Selector)properties.FirstOrDefault(x => x.Name == "PrimaryImage").GetCustomAttribute(typeof(Selector))).Regex)
+                Html = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "Html").GetCustomAttribute(typeof(Selector))).XPath, "", ((Selector)properties.FirstOrDefault(x => x.Name == "Html").GetCustomAttribute(typeof(Selector))).Regex, ExtractType.Html)
             };
 
             result.PrimaryImage = ScrapeString(pageContents, ((Selector)properties.FirstOrDefault(x => x.Name == "PrimaryImage").GetCustomAttribute(typeof(Selector))).XPath, "", ((Selector)properties.FirstOrDefault(x => x.Name == "PrimaryImage").GetCustomAttribute(typeof(Selector))).Regex, ExtractType.Text, ((Selector)properties.FirstOrDefault(x => x.Name == "PrimaryImage").GetCustomAttribute(typeof(Selector))).Attribute);

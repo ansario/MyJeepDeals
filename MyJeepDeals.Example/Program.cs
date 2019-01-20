@@ -22,6 +22,12 @@ namespace MyJeepDeals.Example
             Console.WriteLine($"Quadratec Results: ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(JsonConvert.SerializeObject(results));
+
+            var results = scraper.Scrape("https://www.4wd.com/p/poison-spyder-customs-jl-crawler-front-bumper-19-58-010dbp1/_/R-FVNN-19-58-010DBP1", new FourWD()).Result;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"4WD Results: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(JsonConvert.SerializeObject(results));
             Console.ReadLine();
         }
     }
